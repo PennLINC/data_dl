@@ -4,8 +4,8 @@ downloader (and deleter) for ABCD from NDA
 
 This will download and subsquently delete subject data from the ABCD data on NDA. 
 
-```
-python
+
+```python
 import abcd_dl
 abcd_dl.download(['sub-NDARINV00BD7VDC'],'/cbica/home/bertolem/abcd_dl/dl/','/cbica/home/bertolem/abcd_dl',4)
 
