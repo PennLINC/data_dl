@@ -12,7 +12,7 @@ abcd_dl.download(['sub-NDARINV00BD7VDC'],'/cbica/home/bertolem/abcd_dl/dl/','/cb
 #arg 1: subject list, strings in a list
 #arg 2: where should we put your data?
 #arg 3: where should I keep the log? we use this to show what downloaded, and use it to delete things
-$arg 4: how many cores?
+#arg 4: how many cores?
 
 #here is where you process the data, store your results
 
