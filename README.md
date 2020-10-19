@@ -1,9 +1,6 @@
 # abcd_dl
-downloader (and deleter) for ABCD from NDA
-
-
-This will download and subsquently delete subject data from the ABCD data on NDA. 
-
+Downloader (and deleter) for ABCD from NDA.
+This will download and subsquently delete subject data from the ABCD data on NDA. The point is to not keep data that is available publically on our own storage.
 
 ```python
 import abcd_dl
