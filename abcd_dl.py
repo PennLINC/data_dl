@@ -57,7 +57,7 @@ def download(subjects,where,log,cores):
 
     s3_file = pkgrf.resource_filename('abcd_dl', 'data/datastructure_manifest.txt')
     if os.path.exists(s3_file) == False:
-        print ('downloading a big file (1.7GB) you need, hold on')
+        print ('downloading a big file (1.7GB) you need, hang tight')
         os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 %s'%(s3_file)
                   
     basenames_file = pkgrf.resource_filename('abcd_dl', 'data/data_subsets.txt')

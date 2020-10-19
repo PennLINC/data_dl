@@ -4,7 +4,7 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
-
+import os
 setup(
     author="Max Bertolero",
     author_email='mbertolero@me.com',
@@ -26,6 +26,3 @@ setup(
     version='0.1.0',
     zip_safe=False,
 )
-
-print ('downloading a big file (1.7GB) you need, hang tight')
-os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 %s'%(s3_file)
