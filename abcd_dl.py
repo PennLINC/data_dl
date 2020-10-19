@@ -43,11 +43,17 @@ NDA_CREDENTIALS = os.path.join(HOME, ".abcd_dl", "config.ini")
 HERE = os.path.dirname(os.path.abspath(sys.argv[0]))
 NDA_AWS_TOKEN_MAKER = pkgrf.resource_filename('abcd_dl', 'data/nda_aws_token_maker.py')
 
-def download(subjects,where,log,cores):
+def download(subjects,where,log,cores=1):
+    """
+    subjects: subject list, strings in a list
+    where: where should we put your data?
+    log: where should I keep the log? we use this to show what downloaded, and use it to delete things
+    cores: how many cores?
+    """
 
     date_stamp = "{:%Y:%m:%d %H:%M}".format(datetime.now())
 
-    print('Derivatives downloader called at %s with:' % date_stamp)
+    print('Data downloader called at %s with:' % date_stamp)
 
     make_nda_token(NDA_CREDENTIALS)
 
@@ -58,7 +64,7 @@ def download(subjects,where,log,cores):
     s3_file = pkgrf.resource_filename('abcd_dl', 'data/datastructure_manifest.txt')
     if os.path.exists(s3_file) == False:
         print ('downloading a big file (1.7GB) you need, hang tight')
-        os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 %s'%(s3_file)
+        os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 -O %s'%(s3_file))
                   
     basenames_file = pkgrf.resource_filename('abcd_dl', 'data/data_subsets.txt')
 
@@ -80,8 +86,7 @@ def download(subjects,where,log,cores):
     t.stop()
 
 def delete(where,log):
-    where = '/cbica/home/bertolem/abcd_dl/dl/'
-    df = pd.read_csv('%s/successful_downloads.txt'%(log),skiprows=1,header=None)
+    df = read_csv('%s/successful_downloads.txt'%(log),skiprows=1,header=None)
     for f in df.iterrows():
         f = f[1][0]
         f = '/'.join(f.split('/')[4:])
