@@ -1,3 +1,5 @@
+README.md
+setup.cfg
 setup.py
 abcd.egg-info/PKG-INFO
 abcd.egg-info/SOURCES.txt

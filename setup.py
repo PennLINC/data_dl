@@ -18,6 +18,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
+    download_url = 'https://github.com/mb3152/abcd_dl/archive/master.zip',
     description="ABCD Downloader",
     license="GNU General Public License v3",
     include_package_data=True,
