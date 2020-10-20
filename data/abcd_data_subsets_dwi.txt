@@ -1,0 +1,4 @@
+inputs.anat.T1w
+inputs.anat.T2w
+inputs.dwi.dwi
+inputs.fmap.dwi

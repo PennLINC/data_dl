@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 """
-ABCD-BIDS Downloader
+Open source data downloader
 
-Created   11/05/2019  Anders Perrone (perronea@ohsu.edu)
-Modified  12/12/2019  Eric Earl (earl@ohsu.edu)
-Made into lib 10/15/2020 Max Bertolero (mb3152@seas.upenn.edu)
+Created: 10/15/2020 Max Bertolero (mb3152@seas.upenn.edu)
 """
 
 __doc__ = """
-This python script takes in a list of data subsets and a list of 
-subjects/sessions and downloads the corresponding files from NDA 
-using the NDA's provided AWS S3 links.
+This python library takes in a list of subjects, the data source, 
+and the data type you want, and downloads them. It then can delete them.
 """
 import pkg_resources as pkgrf
 import argparse
@@ -38,12 +35,12 @@ class RepeatTimer(threading.Timer):
         self.cancel()
 
 HOME = os.path.expanduser("~")
-NDA_CREDENTIALS = os.path.join(HOME, ".abcd_dl", "config.ini")
+NDA_CREDENTIALS = os.path.join(HOME, ".data_dl", "config.ini")
 
 HERE = os.path.dirname(os.path.abspath(sys.argv[0]))
-NDA_AWS_TOKEN_MAKER = pkgrf.resource_filename('abcd_dl', 'data/nda_aws_token_maker.py')
+NDA_AWS_TOKEN_MAKER = pkgrf.resource_filename('data_dl', 'data/nda_aws_token_maker.py')
 
-def download(subjects,where,log,cores=1):
+def download_abcd(subjects,where,log,data,cores=1):
     """
     subjects: subject list, strings in a list
     where: where should we put your data?
@@ -61,12 +58,13 @@ def download(subjects,where,log,cores=1):
     t = RepeatTimer(3600, make_nda_token, [NDA_CREDENTIALS])
     t.start()
 
-    s3_file = pkgrf.resource_filename('abcd_dl', 'data/datastructure_manifest.txt')
+    s3_file = pkgrf.resource_filename('data_dl', 'data/abcd_datastructure_manifest.txt')
     if os.path.exists(s3_file) == False:
         print ('downloading a big file (1.7GB) you need, hang tight')
         os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 -O %s'%(s3_file))
                   
-    basenames_file = pkgrf.resource_filename('abcd_dl', 'data/data_subsets.txt')
+    if data == 'dwi': basenames_file = pkgrf.resource_filename('nda_dl', 'data/abcd_data_subsets_dwi.txt')
+    if data == 'all': basenames_file = pkgrf.resource_filename('nda_dl', 'data/abcd_data_subsets.txt')
 
     manifest_df = read_csv(s3_file, sep='\t',low_memory=False)
     subject_list = get_subject_list(manifest_df, subjects)
@@ -97,7 +95,6 @@ def delete(where,log):
 def delete_scary(where):
     os.system('rm -f -r %s'%(where))
     os.system('rm /%s/successful_downloads.txt'%(log))
-
 
 def get_subject_list(manifest_df, subjects):
     """

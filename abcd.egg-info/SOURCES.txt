@@ -1,8 +1,0 @@
-README.md
-setup.cfg
-setup.py
-abcd.egg-info/PKG-INFO
-abcd.egg-info/SOURCES.txt
-abcd.egg-info/dependency_links.txt
-abcd.egg-info/not-zip-safe
-abcd.egg-info/top_level.txt

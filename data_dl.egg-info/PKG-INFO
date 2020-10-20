@@ -1,13 +1,14 @@
 Metadata-Version: 1.2
-Name: abcd
+Name: data-dl
 Version: 0.1.0
 Summary: ABCD Downloader
 Home-page: UNKNOWN
 Author: Max Bertolero
 Author-email: mbertolero@me.com
 License: GNU General Public License v3
+Download-URL: https://github.com/mb3152/data_dl/archive/master.zip
 Description: UNKNOWN
-Keywords: abcd
+Keywords: mri
 Platform: UNKNOWN
 Classifier: Development Status :: 2 - Pre-Alpha
 Classifier: Intended Audience :: Developers
