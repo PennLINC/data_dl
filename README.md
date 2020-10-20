@@ -3,7 +3,7 @@ This will download and subsquently delete subject data from data on NDA. The poi
 
 ```python
 import data_dl
-data_dl.download(['sub-NDARINV00BD7VDC'],'/cbica/home/bertolem/data_dl/dl/','/cbica/home/bertolem/data_dl','all',4)
+data_dl.download_abcd(['sub-NDARINV00BD7VDC'],'/cbica/home/bertolem/data_dl/dl/','/cbica/home/bertolem/data_dl','all',4)
 
 #arg 1: subject list, strings in a list
 #arg 2: where should we put your data?
