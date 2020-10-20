@@ -63,8 +63,8 @@ def download_abcd(subjects,where,log,data,cores=1):
         print ('downloading a big file (1.7GB) you need, hang tight')
         os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 -O %s'%(s3_file))
                   
-    if data == 'dwi': basenames_file = pkgrf.resource_filename('nda_dl', 'data/abcd_data_subsets_dwi.txt')
-    if data == 'all': basenames_file = pkgrf.resource_filename('nda_dl', 'data/abcd_data_subsets.txt')
+    if data == 'dwi': basenames_file = pkgrf.resource_filename('data_dl', 'data/abcd_data_subsets_dwi.txt')
+    if data == 'all': basenames_file = pkgrf.resource_filename('data_dl', 'data/abcd_data_subsets.txt')
 
     manifest_df = read_csv(s3_file, sep='\t',low_memory=False)
     subject_list = get_subject_list(manifest_df, subjects)
