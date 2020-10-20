@@ -92,7 +92,7 @@ def delete(where,log):
         f = '/'.join(f.split('/')[4:])
         f = '/%s/%s'%(where,f)
         os.system('rm -f %s'%(f))
-    os.system('rm /%s/successful_downloads.txt'%(log))
+    os.system('rm -f /%s/successful_downloads.txt'%(log))
 
 def delete_scary(where):
     os.system('rm -f -r %s'%(where))
