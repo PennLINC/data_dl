@@ -24,7 +24,7 @@ derivatives.func.concat_task-SST_bold_desc-filtered_timeseries
 inputs.anat.T1w
 inputs.anat.T2w
 inputs.dwi.dwi
-inputs.fmap.all
+inputs.fmap.dwi
 derivatives.func.motion_task-MID
 derivatives.func.motion_task-nback
 derivatives.func.motion_task-rest
