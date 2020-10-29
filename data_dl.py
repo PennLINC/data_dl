@@ -57,7 +57,7 @@ def download_abcd(subjects,where,log,data,cores=1,s3_file=None):
     # start an hourly thread ( 60 * 60 = 3600 seconds) to update the NDA download token
     t = RepeatTimer(3600, make_nda_token, [NDA_CREDENTIALS])
     t.start()
-    if s3_file != None: s3_file = pkgrf.resource_filename('data_dl', 'data/abcd_datastructure_manifest.txt')
+    if s3_file == None: s3_file = pkgrf.resource_filename('data_dl', 'data/abcd_datastructure_manifest.txt')
     if os.path.exists(s3_file) == False:
         print ('downloading a big file (1.7GB) you need, hang tight')
         os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 -O %s'%(s3_file))
