@@ -170,12 +170,12 @@ parser.set('NDA', 'aws_session_token', token.session)
 with open (os.path.expanduser('~/.aws/credentials'), 'w') as configfile:
     parser.write(configfile)
 
-print('aws_access_key_id=%s\n'
-      'aws_secret_access_key=%s\n'
-      'security_token=%s\n'
-      'expiration=%s\n'
-      %(token.access_key,
-        token.secret_key,
-        token.session,
-        token.expiration)
-      )
+# print('aws_access_key_id=%s\n'
+#       'aws_secret_access_key=%s\n'
+#       'security_token=%s\n'
+#       'expiration=%s\n'
+#       %(token.access_key,
+#         token.secret_key,
+#         token.session,
+#         token.expiration)
+#       )
