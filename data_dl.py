@@ -40,7 +40,7 @@ NDA_CREDENTIALS = os.path.join(HOME, ".data_dl", "config.ini")
 HERE = os.path.dirname(os.path.abspath(sys.argv[0]))
 NDA_AWS_TOKEN_MAKER = pkgrf.resource_filename('data_dl', 'data/nda_aws_token_maker.py')
 
-def download_abcd(subjects,where,log,data,cores=1,s3_file=None):
+def download_abcd(subjects,where,log,data,cores=1):
     """
     subjects: subject list, strings in a list
     where: where should we put your data?
@@ -57,14 +57,17 @@ def download_abcd(subjects,where,log,data,cores=1,s3_file=None):
     # start an hourly thread ( 60 * 60 = 3600 seconds) to update the NDA download token
     t = RepeatTimer(3600, make_nda_token, [NDA_CREDENTIALS])
     t.start()
-    if s3_file == None: s3_file = pkgrf.resource_filename('data_dl', 'data/abcd_datastructure_manifest.txt')
+
+    s3_file = pkgrf.resource_filename('data_dl', 'data/abcd_datastructure_manifest.txt')
     if os.path.exists(s3_file) == False:
         print ('downloading a big file (1.7GB) you need, hang tight')
         os.system('wget https://www.dropbox.com/s/nzc87lnowohud0m/datastructure_manifest.txt?dl=0 -O %s'%(s3_file))
                   
     if data == 'dwi': basenames_file = pkgrf.resource_filename('data_dl', 'data/abcd_data_subsets_dwi.txt')
     if data == 'all': basenames_file = pkgrf.resource_filename('data_dl', 'data/abcd_data_subsets.txt')
-
+    if data == 'anat': basenames_file = pkgrf.resource_filename('data_dl', 'data/abcd_data_subsets_anat.txt')
+    if data == 'jsons': basenames_file = pkgrf.resource_filename('data_dl', 'data/abcd_data_subsets.txt')
+    
     manifest_df = read_csv(s3_file, sep='\t',low_memory=False)
     subject_list = get_subject_list(manifest_df, subjects)
 
@@ -73,9 +76,12 @@ def download_abcd(subjects,where,log,data,cores=1,s3_file=None):
 
     print('\nReading in S3 links...')
     s3_links_arr = manifest_df[manifest_df['manifest_name'].isin(manifest_names)]['associated_file'].values 
-
-    bad = download_s3_files(s3_links_arr, where, log, cores)
-
+    
+    if data == 'jsons':
+        bad = download_s3_jsons(s3_links_arr, where, log, cores)
+    else:
+        bad = download_s3_files(s3_links_arr, where, log, cores)
+    
     print('\nProblematic commands:')
     for baddy in bad:
         print(baddy)
@@ -134,6 +140,108 @@ def generate_manifest_list(basenames_file, subject_list):
             manifest = sub + '.' + base + '.manifest.json'
             manifest_names += [manifest]
     return manifest_names
+
+
+def download_s3_jsons(s3_links_arr, output_dir, log_dir, pool_size=1):
+    """
+
+    """
+
+    bad_download = []
+    commands = []
+
+    success_log = os.path.join(log_dir, 'successful_downloads.txt')
+    failed_log = os.path.join(log_dir, 'failed_downloads.txt')
+    only_one_needed = [
+        "CHANGES",
+        "dataset_description.json",
+        "README",
+        "task-MID_bold.json",
+        "task-nback_bold.json",
+        "task-rest_bold.json",
+        "task-SST_bold.json",
+        "Gordon2014FreeSurferSubcortical_dparc.dlabel.nii",
+        "HCP2016FreeSurferSubcortical_dparc.dlabel.nii",
+        "Markov2012FreeSurferSubcortical_dparc.dlabel.nii",
+        "Power2011FreeSurferSubcortical_dparc.dlabel.nii",
+        "Yeo2011FreeSurferSubcortical_dparc.dlabel.nii"
+    ]
+    only_one_tuple = list(zip([0]*len(only_one_needed), only_one_needed))
+
+    if os.path.isfile(success_log):
+        with open(success_log) as f:
+            success_set = set(f.readlines())
+    else:
+        success_set = set()
+
+    download_set = set()
+
+    print('Creating unique download list...')
+    for s3_link in s3_links_arr:
+        if s3_link.endswith('.json'):
+
+            if s3_link[:4] != 's3:/':
+                s3_path = 's3:/' + s3_link
+            else:
+                s3_path = s3_link
+
+            dest = os.path.join(output_dir, '/'.join(s3_path.split('/')[4:]))
+
+            skip = False
+            for i, only_one_pair in enumerate(only_one_tuple):
+                only_one_count = only_one_pair[0]
+                only_one = only_one_pair[1]
+
+                if only_one in s3_path:
+                    if only_one_count == 0:
+                        only_one_tuple[i] = (1, only_one)
+                    else:
+                        skip = True
+
+                    break
+
+            if not skip and s3_path not in success_set:
+                # Check if the filename already in the success log
+                dest = os.path.join(output_dir, '/'.join(s3_path.split('/')[4:]))
+
+                if not os.path.isfile(dest):
+                    download_set.add( (s3_path, dest) )
+
+    # make unique s3 downloads
+    print('Creating download commands...')
+    for s3_path, dest in sorted(download_set, key=lambda x: x[1]):
+        commands.append( ' ; '.join( [
+                "mkdir -p " + os.path.dirname(dest),
+                "aws s3 cp " + s3_path + " " + dest + " --profile NDA"
+            ] )
+        )
+
+    if pool_size == 1:
+        print('\nDownloading files serially...')
+    elif pool_size > 1:
+        print('\nParallel downloading with %d core(s)...' % pool_size)
+    elif pool_size < 1:
+        print('\nCannot download with less than 1 core.  Try changing your "-p" argument.  Quitting...')
+        sys.exit()
+
+    pool = Pool(pool_size) # pool_size concurrent commands at a time
+    for i, returncode in enumerate(pool.imap(partial(call, shell=True), commands)):
+        s3_path = re.search('.+aws\ s3\ cp\ (s3://.+)\ ' + output_dir + '.+', commands[i]).group(1)
+        if returncode == 0:
+            with open(success_log, 'a+') as s:
+                s.write(s3_path + '\n')
+        else:
+            print( "Command failed: {}".format(commands[i]) )
+
+            bad_download.append(s3_path)
+            with open(failed_log, 'a+') as f:
+                f.write(s3_path + '\n')
+
+            bad_download.append(commands[i])
+
+    pool.close()
+
+    return bad_download
 
 def download_s3_files(s3_links_arr, output_dir, log_dir, pool_size=1):
     """
